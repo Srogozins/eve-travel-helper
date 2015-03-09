@@ -3,10 +3,11 @@ eve-travel-helper
 EVE Online travel planning helper tool
 
 ### Dependencies
-* Bash
+* Shell
+    * Bash
     * wget
     * unzip
-
+* python
 * DB
     * sqlite3
 
