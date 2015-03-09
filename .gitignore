@@ -1,0 +1,11 @@
+# Compiled sources #
+####################
+*.pyc
+
+# SDE stuff #
+####################
+*.bak
+*.db
+*.sql
+*.yaml
+*.zip
