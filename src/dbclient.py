@@ -1,6 +1,6 @@
 import sqlite3
 
-SDE_DIR="SDE"
+SDE_DIR="../SDE"
 UNIVERSE_DB = SDE_DIR + '/' + "universeDataDx.db"
 
 SQL_LIST_SYSTEMS = 'SELECT * FROM mapSolarSystems'
