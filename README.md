@@ -8,6 +8,10 @@ EVE Online travel planning helper tool
     * wget
     * unzip
 * python
+    * sqlite3
+    * Testing
+        * unittest (testing)
+        * mock (testing)
 * DB
     * sqlite3
 
