@@ -32,5 +32,14 @@ class TestDbclientMethods(unittest.TestCase):
         mock_cursor().fetchone.assert_called_with()
         self.assertEqual(res, MTO)
 
+    def test_find_region_by_name(self):
+        mock_cursor().fetchone.return_value = MTO
+        res = dbclient.find_region_by_name(MTI)
+
+        mock_execute.assert_called_with("SELECT * FROM mapRegions " \
+                                        "WHERE regionName=?", (MTI,))
+        mock_cursor().fetchone.assert_called_with()
+        self.assertEqual(res, MTO)
+
 if __name__ == '__main__':
     unittest.main()
