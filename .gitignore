@@ -1,3 +1,7 @@
+# VIM #
+#######
+*.swp
+
 # Compiled sources #
 ####################
 *.pyc
