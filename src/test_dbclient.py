@@ -23,11 +23,18 @@ class TestDbclientMethods(unittest.TestCase):
         mock_execute.assert_called_with("SELECT * FROM mapSolarSystems")
         self.assertEqual(res, MTO)
 
+    def test_list_region_jumps(self):
+        mock_execute.return_value = MTO
+        res = dbclient.list_region_jumps()
+
+        mock_execute.assert_called_with("SELECT * FROM mapRegionJumps")
+        self.assertEqual(res, MTO)
+
     def test_find_system_by_name(self):
         mock_cursor().fetchone.return_value = MTO
         res = dbclient.find_system_by_name(MTI)
 
-        mock_execute.assert_called_with("SELECT * FROM mapSolarSystems " \
+        mock_execute.assert_called_with("SELECT * FROM mapSolarSystems "
                                         "WHERE solarSystemName=?", (MTI,))
         mock_cursor().fetchone.assert_called_with()
         self.assertEqual(res, MTO)
@@ -36,7 +43,7 @@ class TestDbclientMethods(unittest.TestCase):
         mock_cursor().fetchone.return_value = MTO
         res = dbclient.find_region_by_name(MTI)
 
-        mock_execute.assert_called_with("SELECT * FROM mapRegions " \
+        mock_execute.assert_called_with("SELECT * FROM mapRegions "
                                         "WHERE regionName=?", (MTI,))
         mock_cursor().fetchone.assert_called_with()
         self.assertEqual(res, MTO)
