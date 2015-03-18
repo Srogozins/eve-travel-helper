@@ -9,8 +9,8 @@ class System(Base):
 
     regionID = Column(Integer)
     constellationID = Column(Integer)
-    solarSystemID = Column(Integer, primary_key=True)
-    solarSystemName = Column(String(length=100))
+    id = Column(Integer, primary_key=True, name="solarSystemID")
+    name = Column(String(length=100), name='solarSystemName')
     x = Column(REAL)
     y = Column(REAL)
     z = Column(REAL)
