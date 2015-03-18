@@ -1,3 +1,4 @@
+""" Mapping between database tables and python classes"""
 from sqlalchemy import Column, Integer, String, Boolean, REAL
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -33,6 +34,24 @@ class System(Base):
     radius = Column(REAL)
     sunTypeID = Column(Integer)
     securityClass = Column(String(length=2))
+
+
+class Region(Base):
+    __tablename__ = 'mapRegions'
+
+    id = Column(Integer, primary_key=True, name="regionID")
+    name = Column(String(length=100),  name="regionName")
+    x = Column(REAL)
+    y = Column(REAL)
+    z = Column(REAL)
+    xMin = Column(REAL)
+    xMax = Column(REAL)
+    yMin = Column(REAL)
+    yMax = Column(REAL)
+    zMin = Column(REAL)
+    zMax = Column(REAL)
+    factionID = Column(Integer)
+    radius = Column(REAL)
 
 
 class RegionJump(Base):
