@@ -7,5 +7,5 @@ from sqlalchemy.orm import sessionmaker
 
 from . import config
 
-engine = create_engine('sqlite:///' + config.UNIVERSE_DB, echo=True)
+engine = create_engine('sqlite:///' + config.UNIVERSE_DB, echo=config.LOGGING)
 Session = sessionmaker(bind=engine)
