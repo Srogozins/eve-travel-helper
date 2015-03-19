@@ -57,5 +57,5 @@ class Region(Base):
 class RegionJump(Base):
     __tablename__ = 'mapRegionJumps'
 
-    fromRegionID = Column(Integer, primary_key=True)
-    toRegionID = Column(Integer, primary_key=True)
+    fromID = Column(Integer, primary_key=True, name="fromRegionID")
+    toID = Column(Integer, primary_key=True, name="toRegionID")
