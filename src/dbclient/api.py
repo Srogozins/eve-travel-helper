@@ -1,6 +1,6 @@
 """ Public methods for the database client"""
 from .db import Session
-from .models import System, Region
+from .models import System, Region, RegionJump
 
 session = Session()
 
@@ -29,3 +29,12 @@ def find_region_by_name(name):
     query = session.query(Region)
     query = query.filter(Region.name == name)
     return query.one()
+
+
+def list_region_jumps():
+    """ Returns a list of RegionJump objects matching all entries for jump
+    connections between regions (an object for each direction)
+    """
+
+    query = session.query(RegionJump)
+    return query.all()
