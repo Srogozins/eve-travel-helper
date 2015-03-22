@@ -1,16 +1,11 @@
+""" Tests for the routing module """
 import unittest
 from mock import Mock, patch
 
-# Mocks, etc.
+import test_routing_data as test_data
+
+# Mocking out imported module
 mock_dbclient = Mock()
-
-
-class FakeRJ:
-    def __init__(self, fromID, toID):
-        self.fromID = fromID
-        self.toID = toID
-
-
 import sys
 sys.modules['dbclient'] = mock_dbclient
 
@@ -30,12 +25,22 @@ class TestGraphMethods(unittest.TestCase):
 
     @patch('dbclient.api.list_region_jumps')
     def test_graph_rj_with_2_connected_rjs(self, mock_list_region_jumps):
-        mock_list_region_jumps.return_value = [FakeRJ(1, 2), FakeRJ(2, 1)]
+        mock_list_region_jumps.return_value = test_data.TWO_RJS
         expected_res = {1: [2], 2: [1]}
 
         res = routing.graph_region_jumps()
         mock_list_region_jumps.assert_called_with()
         self.assertEqual(res, expected_res)
+
+    @patch('dbclient.api.list_region_jumps')
+    def test_graph_rj_with_real_rjs(self, mock_list_region_jumps):
+        mock_list_region_jumps.return_value = test_data.REAL_RJS
+
+        res = routing.graph_region_jumps()
+        mock_list_region_jumps.assert_called_with()
+        for rj in test_data.REAL_RJS:
+            self.assertIn(rj.fromID, res)
+            self.assertIn(rj.toID, res[rj.fromID])
 
 
 class TestRoutingMethods(unittest.TestCase):
