@@ -25,7 +25,7 @@ class TestGraphMethods(unittest.TestCase):
         expected_res = {}
 
         res = routing.graph_region_jumps()
-        mock_list_region_jumps.asset_called_with()
+        mock_list_region_jumps.assert_called_with()
         self.assertEqual(res, expected_res)
 
     @patch('dbclient.api.list_region_jumps')
@@ -34,7 +34,7 @@ class TestGraphMethods(unittest.TestCase):
         expected_res = {1: [2], 2: [1]}
 
         res = routing.graph_region_jumps()
-        mock_list_region_jumps.asset_called_with()
+        mock_list_region_jumps.assert_called_with()
         self.assertEqual(res, expected_res)
 
 
