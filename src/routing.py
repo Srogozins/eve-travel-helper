@@ -1,47 +1,41 @@
 """ Route calculations """
-
-
+import networkx as nx
 from dbclient import api as universe
 
 
-def graph_region_jumps():
-    """Returns a graph of jumps between regions, represented as
-    a dict of `from` region IDs mapped to lists of `to` region IDs
-    Example output:
-    `{10000001: [10000011, 10000012, 10000028,
-                 10000030, 10000036, 10000047],
-      10000002: [10000003, 10000016, 10000027,
-                 10000029, 10000032, 10000033,
-                 10000042],
-      10000003: [10000002, 10000010, 10000029,i
-                 10000034],
-      ...
-     }`
+class Singleton(type):
+    """ Singleton metaclass boilerplate """
+    _instances = {}
 
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            superclass = super(Singleton, cls)
+            cls._instances[cls] = superclass.__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class JumpGraphProvider():
+    """ This class is intended to provide necessary graphs while avoiding
+    unnecessary calls to DB.
     """
-    rj_graph = {}
-    for rj in universe.list_region_jumps():
-        if rj.fromID not in rj_graph:
-            rj_graph[rj.fromID] = []
+    __metaclass__ = Singleton
 
-        rj_graph[rj.fromID].append(rj.toID)
+    def __init__(self):
+        self._rjg = None
 
-    return rj_graph
+    def _graph_region_jumps(self):
+        """ Returns an undirected graph with nodes representing Regions and
+        edges representing jumps between them
+        """
+        RJG = nx.Graph()
+        for rj in universe.list_region_jumps():
+            RJG.add_edge(rj.fromID, rj.toID)
 
+        return RJG
 
-def shortest_region_routes(start_name, finish_name):
-    """ Returns a list of shortest routes between two regions
-        Each route is a list of region names
-        If start and finish match, [start, finish] is returned
-    """
-    if start_name == finish_name:
-        return [start_name, finish_name]
+    @property
+    def region_jump_graph(self):
+        if self._rjg is None:
+            self._rjg = self._graph_region_jumps()
 
-
-def shortest_routes(start, finish):
-    """ Returns a list of shortest routes between two systems
-        Each route is a list of system names
-        If start and finish match, [start, finish] is returned
-    """
-    if start == finish:
-        return [start, finish]
+        return self._rjg
