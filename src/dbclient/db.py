@@ -1,11 +1,18 @@
 """ Connects to the SDE Database and provides interface for creating sessions
 to it
 """
+import os
+from ConfigParser import SafeConfigParser
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from . import config
+config_file = os.path.join(os.path.dirname(__file__), 'dbclient.ini')
+config = SafeConfigParser()
+config.read(config_file)
 
-engine = create_engine('sqlite:///' + config.UNIVERSE_DB, echo=config.LOGGING)
+UNIVERSE_DB = config.get('Filepaths', 'UNIVERSE_DB')
+LOG = config.getboolean('Logging', 'LOG')
+
+engine = create_engine('sqlite:///' + UNIVERSE_DB, echo=LOG)
 Session = sessionmaker(bind=engine)
