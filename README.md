@@ -8,10 +8,12 @@ EVE Online travel planning helper tool
     * wget
     * unzip
 * python
-    * sqlite3
+    * sqlite
+    * sqlalchemy
+    * networkx
     * Testing
-        * unittest (testing)
-        * mock (testing)
+        * unittest
+        * mock
 * DB
     * sqlite3
 
