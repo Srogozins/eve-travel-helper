@@ -59,3 +59,43 @@ class RegionJump(Base):
 
     fromID = Column(Integer, primary_key=True, name="fromRegionID")
     toID = Column(Integer, primary_key=True, name="toRegionID")
+
+
+class ConstellationJump(Base):
+    __tablename__ = 'mapConstellationJumps'
+
+    fromID = Column(Integer,
+                    primary_key=True,
+                    name="fromConstellationID")
+    toID = Column(Integer,
+                  primary_key=True,
+                  name="toConstellationID")
+    fromRegionID = Column(Integer,
+                          primary_key=True,
+                          name="fromRegionID")
+    toRegionID = Column(Integer,
+                        primary_key=True,
+                        name="toRegionID")
+
+
+class SystemJump(Base):
+    __tablename__ = 'mapSolarSystemJumps'
+
+    fromID = Column(Integer,
+                    primary_key=True,
+                    name="fromSolarSystemID")
+    toID = Column(Integer,
+                  primary_key=True,
+                  name="toSolarSystemID")
+    fromConstellationID = Column(Integer,
+                                 primary_key=True,
+                                 name="fromConstellationID")
+    toConstellationID = Column(Integer,
+                               primary_key=True,
+                               name="toConstellationID")
+    fromRegionID = Column(Integer,
+                          primary_key=True,
+                          name="fromRegionID")
+    toRegionID = Column(Integer,
+                        primary_key=True,
+                        name="toRegionID")

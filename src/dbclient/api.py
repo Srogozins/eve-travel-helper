@@ -1,6 +1,6 @@
 """ Public methods for the database client"""
 from .db import Session
-from .models import System, Region, RegionJump
+from .models import System, Region, RegionJump, ConstellationJump, SystemJump
 
 session = Session()
 
@@ -37,4 +37,22 @@ def list_region_jumps():
     """
 
     query = session.query(RegionJump)
+    return query.all()
+
+
+def list_constellation_jumps():
+    """ Returns a list of ConstellationJump objects matching all entries for
+    jump connections between constellation (an object for each direction)
+    """
+
+    query = session.query(ConstellationJump)
+    return query.all()
+
+
+def list_system_jumps():
+    """ Returns a list of SystemJump objects matching all entries for
+    jump connections between systems (an object for each direction)
+    """
+
+    query = session.query(SystemJump)
     return query.all()

@@ -22,6 +22,8 @@ class JumpGraphProvider():
 
     def __init__(self):
         self._rjg = None
+        self._cjg = None
+        self._sjg = None
 
     def _graph_region_jumps(self):
         """ Returns an undirected graph with nodes representing Regions and
@@ -33,9 +35,43 @@ class JumpGraphProvider():
 
         return RJG
 
+    def _graph_constellation_jumps(self):
+        """ Returns an undirected graph with nodes representing constellations
+        and edges representing jumps between them
+        """
+        CJG = nx.Graph()
+        for cj in universe.list_constellation_jumps():
+            CJG.add_edge(cj.fromID, cj.toID)
+
+        return CJG
+
+    def _graph_system_jumps(self):
+        """ Returns an undirected graph with nodes representing solar systems
+        and edges representing jumps between them
+        """
+        SJG = nx.Graph()
+        for sj in universe.list_system_jumps():
+            SJG.add_edge(sj.fromID, sj.toID)
+
+        return SJG
+
     @property
     def region_jump_graph(self):
         if self._rjg is None:
             self._rjg = self._graph_region_jumps()
 
         return self._rjg
+
+    @property
+    def constellation_jump_graph(self):
+        if self._cjg is None:
+            self._cjg = self._graph_constellation_jumps()
+
+        return self._cjg
+
+    @property
+    def system_jump_graph(self):
+        if self._sjg is None:
+            self._sjg = self._graph_system_jumps()
+
+        return self._sjg
