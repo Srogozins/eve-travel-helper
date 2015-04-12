@@ -13,3 +13,7 @@
 *.sql
 *.yaml
 *.zip
+
+# Sphinx build #
+###################
+docs/build
