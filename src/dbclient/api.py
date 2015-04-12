@@ -54,5 +54,8 @@ def list_system_jumps():
     jump connections between systems (an object for each direction)
     """
 
-    query = session.query(SystemJump)
+def list_systems():
+    """ Returns a list of System objects, matching all entries for systems"""
+
+    query = session.query(System)
     return query.all()
