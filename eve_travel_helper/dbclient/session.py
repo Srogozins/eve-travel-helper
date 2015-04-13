@@ -1,4 +1,5 @@
-""" Connects to the SDE Database and provides interface for creating sessions
+""" eve_travel_helper.dbclient.session -- main
+Connects to the SDE Database and provides interface for creating sessions
 to it
 """
 import os

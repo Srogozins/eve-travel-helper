@@ -1,5 +1,5 @@
 """ Public methods for the database client"""
-from .db import Session
+from .session import Session
 from .models import System, Region, RegionJump, ConstellationJump, SystemJump
 
 session = Session()
