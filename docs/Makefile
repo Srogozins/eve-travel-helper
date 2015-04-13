@@ -51,6 +51,13 @@ help:
 clean:
 	rm -rf $(BUILDDIR)/*
 
+autodoc:
+	rm -rf $(BUILDDIR)/*
+	sphinx-apidoc -Mf -o source ../eve_travel_helper
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	@echo
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
