@@ -1,10 +1,10 @@
-""" Route calculations """
+"""Route calculations """
 import networkx as nx
-from dbclient import api as universe
+from .dbclient import api as universe
 
 
 class Singleton(type):
-    """ Singleton metaclass boilerplate """
+    """Singleton metaclass boilerplate """
     _instances = {}
 
     def __call__(cls, *args, **kwargs):
@@ -17,6 +17,18 @@ class Singleton(type):
 class JumpGraphProvider():
     """ This class is intended to provide necessary graphs while avoiding
     unnecessary calls to DB.
+
+    The graph attributes are hidden behind @property methods and load data
+    DB when retrieved for the first time.
+
+    Attributes:
+        region_jump_graph (networkx.Graph): Graph of jump connections
+            between regions.
+        constellation_jump_graph (networkx.Graph): Graph of jump connections
+            between constellations.
+        system_jump_graph (networkx.Graph): Graph of jump connections
+            between systems.
+
     """
     __metaclass__ = Singleton
 

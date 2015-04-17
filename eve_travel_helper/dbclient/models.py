@@ -1,11 +1,15 @@
-""" Mapping between database tables and python classes"""
+""" SDE Database object-relational configuration.
+
+Module contains mapping between SDE database tables and python classes
+
+"""
 from sqlalchemy import Column, Integer, String, Boolean, REAL
 from sqlalchemy.ext.declarative import declarative_base
 
-Base = declarative_base()
+_Base = declarative_base()
 
 
-class System(Base):
+class System(_Base):
     __tablename__ = 'mapSolarSystems'
 
     regionID = Column(Integer)
@@ -36,7 +40,7 @@ class System(Base):
     securityClass = Column(String(length=2))
 
 
-class Region(Base):
+class Region(_Base):
     __tablename__ = 'mapRegions'
 
     id = Column(Integer, primary_key=True, name="regionID")
@@ -54,14 +58,14 @@ class Region(Base):
     radius = Column(REAL)
 
 
-class RegionJump(Base):
+class RegionJump(_Base):
     __tablename__ = 'mapRegionJumps'
 
     fromID = Column(Integer, primary_key=True, name="fromRegionID")
     toID = Column(Integer, primary_key=True, name="toRegionID")
 
 
-class ConstellationJump(Base):
+class ConstellationJump(_Base):
     __tablename__ = 'mapConstellationJumps'
 
     fromID = Column(Integer,
@@ -78,7 +82,7 @@ class ConstellationJump(Base):
                         name="toRegionID")
 
 
-class SystemJump(Base):
+class SystemJump(_Base):
     __tablename__ = 'mapSolarSystemJumps'
 
     fromID = Column(Integer,

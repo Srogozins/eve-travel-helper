@@ -1,61 +1,91 @@
-""" Public methods for the database client"""
+"""Public methods for the database client."""
 from .session import Session
 from .models import System, Region, RegionJump, ConstellationJump, SystemJump
 
-session = Session()
+_session = Session()
 
 
 def find_system_by_name(name):
-    """ Returns System object representing a system in DB with matching name
+    """Find solar system with specified name.
 
-        If there's more than one system with matching name,
-        throws MultipleResultsFound
-        If no system with matching name was found, throws NoResultFound
+    Args:
+      name (str): name of the solar system
+
+    Returns:
+      eve_travel_helper.dbclient.models.System: object representing
+        found system
+
+    Raises:
+      sqlalchemy.orm.exc.NoResultFound: If no system with given name was found
+
     """
-
-    query = session.query(System)
+    query = _session.query(System)
     query = query.filter(System.name == name)
     return query.one()
 
 
 def find_region_by_name(name):
-    """ Returns Region object representing a region in DB with matching name
+    """Find region with specified name.
 
-        If there's more than one region with matching name,
-        throws MultipleResultsFound
-        If no region with matching name was found, throws NoResultFound
+    Args:
+      name (str): name of the region
+
+    Returns:
+      eve_travel_helper.dbclient.models.Region: object representing
+        found region
+
+    Raises:
+      sqlalchemy.orm.exc.NoResultFound: If no region with given name was found
+
     """
-
-    query = session.query(Region)
+    query = _session.query(Region)
     query = query.filter(Region.name == name)
     return query.one()
 
 
 def list_region_jumps():
-    """ Returns a list of RegionJump objects matching all entries for jump
-    connections between regions (an object for each direction)
-    """
+    """Find all inter-region jump connections(one for either direction).
 
-    query = session.query(RegionJump)
+    Returns:
+      list of eve_travel_helper.dbclient.models.RegionJump: objects
+      representing found regions
+
+    """
+    query = _session.query(RegionJump)
     return query.all()
 
 
 def list_constellation_jumps():
-    """ Returns a list of ConstellationJump objects matching all entries for
-    jump connections between constellation (an object for each direction)
-    """
+    """Find all inter-constellation jump connections(one for either direction).
 
-    query = session.query(ConstellationJump)
+    Returns:
+      list of eve_travel_helper.dbclient.models.RegionJump: objects
+        representing found jumps
+
+    """
+    query = _session.query(ConstellationJump)
     return query.all()
 
 
 def list_system_jumps():
-    """ Returns a list of SystemJump objects matching all entries for
-    jump connections between systems (an object for each direction)
+    """Find all inter-system jump connections(one for either direction).
+
+    Returns:
+      list of eve_travel_helper.dbclient.models.SystemJump: objects
+        representing found jump connections
+
     """
+    query = _session.query(SystemJump)
+    return query.all()
+
 
 def list_systems():
-    """ Returns a list of System objects, matching all entries for systems"""
+    """Find all solar systems.
 
-    query = session.query(System)
+    Returns:
+      list of eve_travel_helper.dbclient.models.System: objects
+        representing systems
+
+    """
+    query = _session.query(System)
     return query.all()
