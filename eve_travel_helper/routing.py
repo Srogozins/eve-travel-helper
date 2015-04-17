@@ -1,6 +1,6 @@
 """Route calculations """
 import networkx as nx
-from .dbclient import api as universe
+from dbclient import api as universe
 
 
 class Singleton(type):
