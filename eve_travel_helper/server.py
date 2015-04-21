@@ -28,8 +28,9 @@ def shortest_region_route():
     return jsonify({'route': res})
 
 
-@app.route('/systems', methods=['GET'])
-def list_systems():
+@app.route('/systems/', defaults={'page': 1}, methods=['GET'])
+@app.route('/systems/page/<int:page>', methods=['GET'])
+def list_systems(page):
     """Return data about all the static (non-wormhole) systems in the
     EVE Online universe
 
@@ -54,9 +55,28 @@ def list_systems():
         ]
       }
 
+      Pagination examples:
+
+      Both yield first 20 systems
+      $ curl http://127.0.0.1:5000/systems
+      $ curl http://127.0.0.1:5000/systems/page/1
+
+      Yields second 20 systems
+      $ curl http://127.0.0.1:5000/systems/page/2
+
+      Both yield first 10 systems
+      $ curl http://127.0.0.1:5000/systems?per_page=10
+      $ curl http://127.0.0.1:5000/systems/page/1?per_page=10
     """
-    # TODO: pagination
-    systems = universe.list_systems()
+    per_page = request.args.get('per_page', type=int)
+
+    if not per_page:
+        per_page = app.config['PER_PAGE']
+
+    start = (page - 1) * per_page
+    stop = start + per_page
+
+    systems = universe.list_systems(start=start, stop=stop)
 
     res = []
     for system in systems:

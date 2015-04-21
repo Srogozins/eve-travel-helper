@@ -79,13 +79,19 @@ def list_system_jumps():
     return query.all()
 
 
-def list_systems():
-    """Find all solar systems.
+def list_systems(start=0, stop=None):
+    """List solar systems.
+
+    Args:
+        start (int, optional): Offset from which the returned list will start.
+          Defaults to 0.
+        stop (int, optional): How many systems to include after the offset.
+          By default all systems after the offset will be included.
 
     Returns:
       list of eve_travel_helper.dbclient.models.System: objects
         representing systems
 
     """
-    query = _session.query(System)
+    query = _session.query(System).order_by(System.id).slice(start, stop)
     return query.all()
