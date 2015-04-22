@@ -4,6 +4,7 @@ import os
 
 from flask import Flask, jsonify, request
 from flask.ext.iniconfig import INIConfig
+from flask.ext.cors import CORS
 
 from dbclient import api as universe
 from routing import JumpGraphProvider as jgp
@@ -11,6 +12,7 @@ from networkx import shortest_path
 
 app = Flask(__name__)
 INIConfig(app)
+cors = CORS(app)
 
 config_file = os.path.join(os.path.dirname(__file__), 'server.ini')
 
