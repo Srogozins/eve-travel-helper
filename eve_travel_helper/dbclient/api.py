@@ -95,3 +95,14 @@ def list_systems(start=0, stop=None):
     """
     query = _session.query(System).order_by(System.id).slice(start, stop)
     return query.all()
+
+
+def count_systems():
+    """Count solar systems.
+
+    Returns:
+      int: total number of solar systems
+
+    """
+    query = _session.query(System)
+    return query.count()

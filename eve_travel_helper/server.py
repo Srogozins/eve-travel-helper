@@ -33,24 +33,25 @@ def shortest_region_route():
 @app.route('/systems/', defaults={'page': 1}, methods=['GET'])
 @app.route('/systems/page/<int:page>', methods=['GET'])
 def list_systems(page):
-    """Return data about all the static (non-wormhole) systems in the
+    """Return paged data about systems in the
     EVE Online universe
 
     Examples:
 
       $ curl http://127.0.0.1:5000/systems
       {
-        "systems": [
+        total_systems: 8030,
+        systems: [
           {
-            "border": true,
-            "constellation": false,
-            "constellationID": 20000001,
+            border: true,
+            constellation: false,
+            constellationID: 20000001,
             ...
           },
           {
-           "border": true,
-            "constellation": false,
-            "constellationID": 20000002,
+            border: true,
+            constellation: false,
+            constellationID: 20000002,
             ...
           }
           ...
@@ -75,16 +76,17 @@ def list_systems(page):
     if not per_page:
         per_page = app.config['PER_PAGE']
 
+    res = {'systems': [], 'total_systems': 0}
+
     start = (page - 1) * per_page
     stop = start + per_page
-
     systems = universe.list_systems(start=start, stop=stop)
-
-    res = []
     for system in systems:
-        res.append(system.as_dict())
+        res['systems'].append(system.as_dict())
 
-    return jsonify({'systems': res})
+    res['total_systems'] = universe.count_systems()
+
+    return jsonify(res)
 
 if __name__ == '__main__':
     app.run()
