@@ -30,6 +30,16 @@ def shortest_region_route():
     return jsonify({'route': res})
 
 
+@app.route('/routes/systems/shortest/', methods=['GET'])
+def shortest_system_route():
+    """Return shortest route between two systems"""
+    fromID = request.args.get('from', type=int)
+    toID = request.args.get('to', type=int)
+
+    res = shortest_path(jgp().system_jump_graph, fromID, toID)
+    return jsonify({'route': res})
+
+
 @app.route('/systems/', defaults={'page': 1}, methods=['GET'])
 @app.route('/systems/page/<int:page>', methods=['GET'])
 def list_systems(page):
