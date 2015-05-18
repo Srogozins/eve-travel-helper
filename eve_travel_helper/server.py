@@ -5,12 +5,15 @@ import os
 from flask import Flask, jsonify, request
 from flask.ext.iniconfig import INIConfig
 from flask.ext.cors import CORS
+from flask_restful import Api
 
-from dbclient import api as universe
+
 from routing import JumpGraphProvider as jgp
+from resources import Systems
 from networkx import shortest_path
 
 app = Flask(__name__)
+api = Api(app)
 INIConfig(app)
 cors = CORS(app)
 
@@ -18,6 +21,10 @@ config_file = os.path.join(os.path.dirname(__file__), 'server.ini')
 
 with app.app_context():
     app.config.from_inifile('server.ini')
+
+api.add_resource(Systems,
+                 '/systems',
+                 '/systems/page/<int:page>')
 
 
 @app.route('/routes/regions/shortest/', methods=['GET'])
@@ -38,65 +45,6 @@ def shortest_system_route():
 
     res = shortest_path(jgp().system_jump_graph, fromID, toID)
     return jsonify({'route': res})
-
-
-@app.route('/systems/', defaults={'page': 1}, methods=['GET'])
-@app.route('/systems/page/<int:page>', methods=['GET'])
-def list_systems(page):
-    """Return paged data about systems in the
-    EVE Online universe
-
-    Examples:
-
-      $ curl http://127.0.0.1:5000/systems
-      {
-        total_systems: 8030,
-        systems: [
-          {
-            border: true,
-            constellation: false,
-            constellationID: 20000001,
-            ...
-          },
-          {
-            border: true,
-            constellation: false,
-            constellationID: 20000002,
-            ...
-          }
-          ...
-        ]
-      }
-
-      Pagination examples:
-
-      Both yield first 20 systems
-      $ curl http://127.0.0.1:5000/systems
-      $ curl http://127.0.0.1:5000/systems/page/1
-
-      Yields second 20 systems
-      $ curl http://127.0.0.1:5000/systems/page/2
-
-      Both yield first 10 systems
-      $ curl http://127.0.0.1:5000/systems?per_page=10
-      $ curl http://127.0.0.1:5000/systems/page/1?per_page=10
-    """
-    per_page = request.args.get('per_page', type=int)
-
-    if not per_page:
-        per_page = app.config['PER_PAGE']
-
-    res = {'systems': [], 'total_systems': 0}
-
-    start = (page - 1) * per_page
-    stop = start + per_page
-    systems = universe.list_systems(start=start, stop=stop)
-    for system in systems:
-        res['systems'].append(system.as_dict())
-
-    res['total_systems'] = universe.count_systems()
-
-    return jsonify(res)
 
 if __name__ == '__main__':
     app.run()
