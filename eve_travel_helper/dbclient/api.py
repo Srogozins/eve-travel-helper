@@ -1,26 +1,37 @@
 """Public methods for the database client."""
+from sqlalchemy.orm.exc import NoResultFound
+
+from .exceptions import NegativeIntegerError
 from .session import Session
 from .models import System, Region, RegionJump, ConstellationJump, SystemJump
 
 _session = Session()
 
 
-class NegativeIntegerError(ValueError):
-    """Exception for illegal negative integer values
+def catch_noresults(return_list=False):
+    """Decorator to prevent sqlalchemy's NoResultFound exception from leaking.
+
+    Said exception will be caught and a value will be returned.
 
     Args:
-      value (int): The offending value.
+        return_list (bool, optional): If true, when NoResultFound is caught,
+          an empty list will be returned. Otherwise None will be returned.
 
-    Attributes:
-      msg (str): Human readable string describing the exception and
-        displaying the offending value
+        """
+    def catch_noresults_decorator(func):
+        def catcher(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except NoResultFound:
+                if return_list:
+                    return []
+                else:
+                    return None
+        return catcher
+    return catch_noresults_decorator
 
-    """
-    def __init__(self, value):
-        self.msg = 'Illegal value for `start` argument: %i. \
-                    Cannot be negative' % value
 
-
+@catch_noresults()
 def find_system_by_id(id):
     """Find system with specified ID.
 
@@ -33,7 +44,6 @@ def find_system_by_id(id):
         found system
 
     Raises:
-      sqlalchemy.orm.exc.NoResultFound: If no system with given ID was found
       NegativeIntegerError: If a negative integer is passed as a value
         for an argument for which it is illegal
 
@@ -46,6 +56,7 @@ def find_system_by_id(id):
     return query.one()
 
 
+@catch_noresults()
 def find_system_by_name(name):
     """Find solar system with matching name
 
@@ -58,16 +69,13 @@ def find_system_by_name(name):
       eve_travel_helper.dbclient.models.System: object representing found
         system
 
-    Raises:
-      sqlalchemy.orm.exc.NoResultFound: If no system with matching name was
-        found
-
     """
     query = _session.query(System)
     query = query.filter(System.name == name)
     return query.one()
 
 
+@catch_noresults(return_list=False)
 def search_systems_by_name(name, exact_match=False, start=0, stop=None):
     """Find solar systems with matching names
 
@@ -88,8 +96,6 @@ def search_systems_by_name(name, exact_match=False, start=0, stop=None):
         matched systems
 
     Raises:
-      sqlalchemy.orm.exc.NoResultFound: If no systems with matching names were
-        found
       NegativeIntegerError: If a negative integer is passed as a value
         for an argument for which it is illegal
 
@@ -112,6 +118,7 @@ def search_systems_by_name(name, exact_match=False, start=0, stop=None):
         return query.all()
 
 
+@catch_noresults()
 def find_region_by_name(name):
     """Find region with specified name.
 
@@ -124,15 +131,13 @@ def find_region_by_name(name):
       eve_travel_helper.dbclient.models.Region: object representing
         found region
 
-    Raises:
-      sqlalchemy.orm.exc.NoResultFound: If no region with given name was found
-
     """
     query = _session.query(Region)
     query = query.filter(Region.name == name)
     return query.one()
 
 
+@catch_noresults(return_list=True)
 def list_region_jumps():
     """Find all inter-region jump connections(one for either direction).
 
@@ -145,6 +150,7 @@ def list_region_jumps():
     return query.all()
 
 
+@catch_noresults(return_list=True)
 def list_constellation_jumps():
     """Find all inter-constellation jump connections(one for either direction).
 
@@ -157,6 +163,7 @@ def list_constellation_jumps():
     return query.all()
 
 
+@catch_noresults(return_list=True)
 def list_system_jumps():
     """Find all inter-system jump connections(one for either direction).
 
@@ -169,6 +176,7 @@ def list_system_jumps():
     return query.all()
 
 
+@catch_noresults(return_list=True)
 def list_systems(start=0, stop=None):
     """List solar systems.
 
@@ -184,8 +192,6 @@ def list_systems(start=0, stop=None):
         representing systems
 
     Raises:
-      sqlalchemy.orm.exc.NoResultFound: If no systems with matching
-        names were found
       NegativeIntegerError: If a negative integer is passed as a value
         for an argument for which it is illegal
 
