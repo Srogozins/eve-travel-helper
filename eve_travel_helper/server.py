@@ -24,7 +24,9 @@ with app.app_context():
 
 api.add_resource(Systems,
                  '/systems',
-                 '/systems/page/<int:page>')
+                 '/systems/page/<int:page>',
+                 '/systems/<int:id>',
+                 '/systems/<string:name>')
 
 
 @app.route('/routes/regions/shortest/', methods=['GET'])
