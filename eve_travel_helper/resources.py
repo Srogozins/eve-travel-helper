@@ -1,8 +1,9 @@
 """Flask resource classes"""
-from flask_restful import Resource
+from flask_restful import abort, reqparse, Resource
 from flask import jsonify, request, current_app
 
 from dbclient import api, exceptions
+from routing import shortest_system_route, NodeNotInGraphError
 
 
 class Systems(Resource):
@@ -29,11 +30,41 @@ class Systems(Resource):
             per_page = request.args.get('per_page', type=int)
             if per_page is None or per_page <= 0:
                 per_page = current_app.config['PER_PAGE']
-                start = (page - 1) * per_page
-                stop = start + per_page
+
+            start = (page - 1) * per_page
+            stop = start + per_page
 
             systems = api.list_systems(start=start, stop=stop)
             res['systems'] = [s.as_dict() for s in systems]
             res['total_systems'] = api.count_systems()
+
+        return jsonify(res)
+
+route_arg_parser = reqparse.RequestParser()
+route_arg_parser.add_argument('waypoints',
+                              type=int,
+                              action='append',
+                              required=True,
+                              location=['json'])
+
+
+class Routes(Resource):
+    def post(self, node_type=None, route_type='shortest'):
+        """Calculate routes
+
+        """
+        node_types = ['systems', 'constellations', 'regions']
+        route_types = ['shortest']
+        res = {'routes': []}
+
+        if node_type in node_types and route_type in route_types:
+            args = route_arg_parser.parse_args()
+            waypoints = args['waypoints']
+            try:
+                route = shortest_system_route(waypoints[0], waypoints[1])
+            except NodeNotInGraphError as e:
+                abort(409, message=e.msg)
+
+            res['routes'].append(route)
 
         return jsonify(res)

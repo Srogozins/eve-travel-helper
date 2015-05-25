@@ -2,18 +2,15 @@
 """Main Flask module. Execute this file to start the HTTP server"""
 import os
 
-from flask import Flask, jsonify, request
+from flask import Flask
 from flask.ext.iniconfig import INIConfig
 from flask.ext.cors import CORS
 from flask_restful import Api
 
-
-from routing import JumpGraphProvider as jgp
-from resources import Systems
-from networkx import shortest_path
+from resources import Systems, Routes
 
 app = Flask(__name__)
-api = Api(app)
+api = Api(app, catch_all_404s=True)
 INIConfig(app)
 cors = CORS(app)
 
@@ -28,25 +25,8 @@ api.add_resource(Systems,
                  '/systems/<int:id>',
                  '/systems/<string:name>')
 
-
-@app.route('/routes/regions/shortest/', methods=['GET'])
-def shortest_region_route():
-    """Return shortest route between two regions"""
-    fromID = request.args.get('from', type=int)
-    toID = request.args.get('to', type=int)
-
-    res = shortest_path(jgp().region_jump_graph, fromID, toID)
-    return jsonify({'route': res})
-
-
-@app.route('/routes/systems/shortest/', methods=['GET'])
-def shortest_system_route():
-    """Return shortest route between two systems"""
-    fromID = request.args.get('from', type=int)
-    toID = request.args.get('to', type=int)
-
-    res = shortest_path(jgp().system_jump_graph, fromID, toID)
-    return jsonify({'route': res})
+api.add_resource(Routes,
+                 '/routes/<string:node_type>/<string:route_type>')
 
 if __name__ == '__main__':
     app.run()
