@@ -1,5 +1,6 @@
 """Route calculations """
 import networkx as nx
+from networkx.exception import NetworkXError, NetworkXNoPath
 from dbclient import api as universe
 
 
@@ -12,6 +13,23 @@ class Singleton(type):
             superclass = super(Singleton, cls)
             cls._instances[cls] = superclass.__call__(*args, **kwargs)
         return cls._instances[cls]
+
+
+class NodeNotInGraphError(Exception):
+    """Exception to be thrown when an error was caused because of receiving
+    node ID not in the graph.
+
+    Args:
+      graph (str): String descriving the graph
+      value (int): The offending node ID.
+
+    Attributes:
+      msg (str): Human readable string describing the exception and
+        displaying the offending node ID and graph
+
+    """
+    def __init__(self, graph, node):
+        self.msg = "%s doesn't contain node %i" % (graph, node)
 
 
 class JumpGraphProvider():
@@ -87,3 +105,36 @@ class JumpGraphProvider():
             self._sjg = self._graph_system_jumps()
 
         return self._sjg
+
+
+def shortest_system_route(source, target):
+    """Wrapper for networkx's shortest_path function for system jump graph.
+
+    Args:
+      source (int): ID of the source system.
+      target (int): ID of the target system.
+
+    Returns:
+      list of int: list of system IDs, denoting the path from source to target,
+      including both of them.
+      None: if no path could be calculated between the two systems
+
+      If the source matches the target, a list with a single element matching
+      matching it is returned.
+
+    Raises:
+      NodeNotInGraphError: if either source or target node is not in the graph
+
+    """
+    try:
+        sjg = JumpGraphProvider().system_jump_graph
+        return nx.shortest_path(sjg, source, target)
+    except NetworkXError:
+        # Check if exception occured because a node not present in Graph
+        # was specified
+        for node in source, target:
+            if not sjg.has_node(node):
+                raise NodeNotInGraphError('System Jump Graph', node)
+    except NetworkXNoPath:
+        print "No path could be calculated from %i to %i" % (source, target)
+        return None
