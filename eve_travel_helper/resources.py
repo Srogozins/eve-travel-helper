@@ -64,7 +64,9 @@ class Routes(Resource):
                 # calculate route slices for every pair of neighbor waypoints
                 # and the list and append it to the route
                 for w1, w2 in zip(waypoints, waypoints[1:]):
-                    res['route'].append(shortest_system_route(w1, w2))
+                    route = shortest_system_route(w1, w2)
+                    route2 = [api.find_system_by_id(s_id).as_dict() for s_id in route]
+                    res['route'].append(route2)
             except NodeNotInGraphError as e:
                 abort(409, message=e.msg)
 
