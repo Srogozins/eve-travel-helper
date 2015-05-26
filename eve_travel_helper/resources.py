@@ -40,6 +40,24 @@ class Systems(Resource):
 
         return jsonify(res)
 
+system_search_arg_parser = reqparse.RequestParser()
+system_search_arg_parser.add_argument('name',
+                                      type=str,
+                                      action='store',
+                                      required=True,
+                                      location=['values'])
+
+
+class SystemSearch(Resource):
+    def get(self):
+        """Search systems
+
+        """
+        args = system_search_arg_parser.parse_args()
+        systems = api.search_systems_by_name(args['name'])
+        res = {'systems': [s.as_dict() for s in systems], 'total_systems': 0}
+        return jsonify(res)
+
 route_arg_parser = reqparse.RequestParser()
 route_arg_parser.add_argument('waypoints',
                               type=int,
