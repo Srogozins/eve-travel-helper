@@ -55,16 +55,17 @@ class Routes(Resource):
         """
         node_types = ['systems', 'constellations', 'regions']
         route_types = ['shortest']
-        res = {'routes': []}
+        res = {'route': []}
 
         if node_type in node_types and route_type in route_types:
             args = route_arg_parser.parse_args()
             waypoints = args['waypoints']
             try:
-                route = shortest_system_route(waypoints[0], waypoints[1])
+                # calculate route slices for every pair of neighbor waypoints
+                # and the list and append it to the route
+                for w1, w2 in zip(waypoints, waypoints[1:]):
+                    res['route'].append(shortest_system_route(w1, w2))
             except NodeNotInGraphError as e:
                 abort(409, message=e.msg)
-
-            res['routes'].append(route)
 
         return jsonify(res)
