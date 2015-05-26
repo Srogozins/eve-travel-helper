@@ -40,6 +40,37 @@ class Systems(Resource):
 
         return jsonify(res)
 
+system_search_arg_parser = reqparse.RequestParser()
+system_search_arg_parser.add_argument('name',
+                                      type=str,
+                                      action='store',
+                                      required=True,
+                                      location=['values'])
+system_search_arg_parser.add_argument('per_page',
+                                      type=int,
+                                      action='store',
+                                      required=False,
+                                      location=['values'])
+
+
+class SystemSearch(Resource):
+    def get(self,  page=1):
+        """Search systems
+
+        """
+        args = system_search_arg_parser.parse_args()
+
+        per_page = args['per_page']
+        if per_page is None or per_page <= 0:
+            per_page = current_app.config['PER_PAGE']
+
+            start = (page - 1) * per_page
+            stop = start + per_page
+
+        systems = api.search_systems_by_name(args['name'], False, start, stop)
+        res = {'systems': [s.as_dict() for s in systems], 'total_systems': 0}
+        return jsonify(res)
+
 route_arg_parser = reqparse.RequestParser()
 route_arg_parser.add_argument('waypoints',
                               type=int,
