@@ -1,62 +1,24 @@
 """Public methods for the database client."""
-from sqlalchemy.orm.exc import NoResultFound
-
-from .exceptions import NegativeIntegerError
-from .session import Session
 from .models import System, Region, RegionJump, ConstellationJump, SystemJump
 
-_session = Session()
 
-
-def catch_noresults(return_list=False):
-    """Decorator to prevent sqlalchemy's NoResultFound exception from leaking.
-
-    Said exception will be caught and a value will be returned.
-
-    Args:
-        return_list (bool, optional): If true, when NoResultFound is caught,
-          an empty list will be returned. Otherwise None will be returned.
-
-        """
-    def catch_noresults_decorator(func):
-        def catcher(*args, **kwargs):
-            try:
-                return func(*args, **kwargs)
-            except NoResultFound:
-                if return_list:
-                    return []
-                else:
-                    return None
-        return catcher
-    return catch_noresults_decorator
-
-
-@catch_noresults()
 def find_system_by_id(id):
     """Find system with specified ID.
 
     Args:
       id (int): ID of the systen. Negative values will raise
-        NegativeIntegerError
+        NegativeIntegerArgumentError
 
     Returns:
       eve_travel_helper.dbclient.models.System: object representing
         found system
-
-    Raises:
-      NegativeIntegerError: If a negative integer is passed as a value
-        for an argument for which it is illegal
+      None: if no system has been found
 
     """
-    if id < 0:
-        raise NegativeIntegerError(id)
-
-    query = _session.query(System)
-    query = query.filter(System.id == id)
-    return query.one()
+    query = System.query.filter(System.id == id)
+    return query.first()
 
 
-@catch_noresults()
 def find_system_by_name(name):
     """Find solar system with matching name
 
@@ -68,57 +30,34 @@ def find_system_by_name(name):
     Returns:
       eve_travel_helper.dbclient.models.System: object representing found
         system
+      None: if no system  has been found
 
     """
-    query = _session.query(System)
-    query = query.filter(System.name == name)
-    return query.one()
+    query = System.query.filter(System.name == name)
+    return query.first()
 
 
-@catch_noresults(return_list=False)
-def search_systems_by_name(name, exact_match=False, start=0, stop=None):
-    """Find solar systems with matching names
+def search_systems_by_name(name, page=1, per_page=20):
+    """Find solar systems with partially or fully matching names
 
-    Matching is not case-sensitive
+    Matching is not case-sensitive. Results are paginated.
 
     Args:
-      name (str): Beginning part or full name of the solar system
-      exact_match (bool): Whether to match the name exactly instead of taking
-        the name argument as incoplete beginning of the name. Default false.
-      start (int, optional): Offset from which the returned list will start.
-        Defaults to 0. Negative values will raise ValueError
-      stop (int, optional): How many systems to include after the offset.
-        By default all systems after the offset will be included.
-        Negative values will raise ValueError
+      name (str): Beginning of or full name of the solar system
+      page (int, optional): Number of the page to return. Defaults to 1.
+      per_page (int, optional): Maximum amount of systems a page will contain.
+        Defaults to 20.
 
     Returns:
-      list of eve_travel_helper.dbclient.models.System: objects representing
-        matched systems
-
-    Raises:
-      NegativeIntegerError: If a negative integer is passed as a value
-        for an argument for which it is illegal
+      flask_sqlalchemy.Pagination: object containing pagination data
 
     """
-    if start < 0:
-        raise NegativeIntegerError(start)
-
-    if stop is not None and stop < 0:
-        raise NegativeIntegerError(stop)
-
-    query = _session.query(System)
-
-    if exact_match:
-        return [find_system_by_name(name)]
-    else:
-        expr = name + '%'
-        query = query.filter(System.name.like(expr))
-        query = query.order_by(System.id).slice(start, stop)
-
-        return query.all()
+    expr = name + '%'
+    query = System.query.order_by(System.name).filter(System.name.like(expr))
+    paged = query.paginate(page, per_page, error_out=False)
+    return paged
 
 
-@catch_noresults()
 def find_region_by_name(name):
     """Find region with specified name.
 
@@ -132,12 +71,11 @@ def find_region_by_name(name):
         found region
 
     """
-    query = _session.query(Region)
+    query = Region
     query = query.filter(Region.name == name)
     return query.one()
 
 
-@catch_noresults(return_list=True)
 def list_region_jumps():
     """Find all inter-region jump connections(one for either direction).
 
@@ -146,11 +84,10 @@ def list_region_jumps():
       representing found regions
 
     """
-    query = _session.query(RegionJump)
+    query = RegionJump
     return query.all()
 
 
-@catch_noresults(return_list=True)
 def list_constellation_jumps():
     """Find all inter-constellation jump connections(one for either direction).
 
@@ -159,11 +96,10 @@ def list_constellation_jumps():
         representing found jumps
 
     """
-    query = _session.query(ConstellationJump)
+    query = ConstellationJump
     return query.all()
 
 
-@catch_noresults(return_list=True)
 def list_system_jumps():
     """Find all inter-system jump connections(one for either direction).
 
@@ -172,12 +108,11 @@ def list_system_jumps():
         representing found jump connections
 
     """
-    query = _session.query(SystemJump)
+    query = SystemJump
     return query.all()
 
 
-@catch_noresults(return_list=True)
-def list_systems(start=0, stop=None):
+def list_systems(page=1, per_page=20):
     """List solar systems.
 
     Args:
@@ -191,19 +126,10 @@ def list_systems(start=0, stop=None):
       list of eve_travel_helper.dbclient.models.System: objects
         representing systems
 
-    Raises:
-      NegativeIntegerError: If a negative integer is passed as a value
-        for an argument for which it is illegal
-
     """
-    if start < 0:
-        raise NegativeIntegerError(start)
-
-    if stop is not None and stop < 0:
-        raise NegativeIntegerError(stop)
-
-    query = _session.query(System).order_by(System.id).slice(start, stop)
-    return query.all()
+    query = System.query.order_by(System.id)
+    paged = query.paginate(page, per_page, error_out=False)
+    return paged
 
 
 def count_systems():
@@ -213,5 +139,5 @@ def count_systems():
       int: total number of solar systems
 
     """
-    query = _session.query(System)
+    query = System
     return query.count()

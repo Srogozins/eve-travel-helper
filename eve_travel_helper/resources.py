@@ -1,62 +1,64 @@
 """Flask resource classes"""
 from flask_restful import abort, reqparse, Resource
-from flask import jsonify, request, current_app
+from flask import jsonify, current_app
 
-from dbclient import api, exceptions
+from dbclient import api
 from routing import shortest_system_route, NodeNotInGraphError
+
+system_arg_parser = reqparse.RequestParser()
+system_arg_parser.add_argument('page',
+                               default=1,
+                               type=int,
+                               location='args')
+system_arg_parser.add_argument('per_page',
+                               type=int,
+                               location='args')
+system_arg_parser.add_argument('name',
+                               type=str,
+                               location='args')
 
 
 class Systems(Resource):
-    def get(self, id=None, name=None, page=1):
+    def get(self):
         """Return data about systems in the EVE Online universe
+
+        """
+        args = system_arg_parser.parse_args()
+        res = {'systems': [], 'total_systems': 0}
+        per_page = args['per_page']
+        if per_page is None or per_page <= 0:
+            per_page = current_app.config['PER_PAGE']
+
+        if args['name']:
+            paged = api.search_systems_by_name(args['name'], args['page'], per_page)
+        else:
+            paged = api.list_systems(args['page'], per_page)
+
+        res['systems'] = [s.as_dict() for s in paged.items]
+        res['total_systems'] = paged.total
+
+        return jsonify(res)
+
+
+class SingleSystem(Resource):
+    def get(self, id=None, name=None):
+        """Return data about a specific system in the EVE Online universe
 
         """
         res = {'systems': [], 'total_systems': 0}
 
         if id is not None:
-            try:
-                system = api.find_system_by_id(id)
-                if system is not None:
-                    res['systems'].append(system.as_dict())
-            except exceptions.NegativeIntegerError:
-                res['systems']
+            system = api.find_system_by_id(id)
+            if system is not None:
+                res['systems'].append(system.as_dict())
             res['total_systems'] = len(res['systems'])
         elif name is not None:
             system = api.find_system_by_name(name)
             if system is not None:
                 res['systems'].append(system.as_dict())
             res['total_systems'] = len(res['systems'])
-        else:
-            per_page = request.args.get('per_page', type=int)
-            if per_page is None or per_page <= 0:
-                per_page = current_app.config['PER_PAGE']
-
-            start = (page - 1) * per_page
-            stop = start + per_page
-
-            systems = api.list_systems(start=start, stop=stop)
-            res['systems'] = [s.as_dict() for s in systems]
-            res['total_systems'] = api.count_systems()
-
         return jsonify(res)
 
-system_search_arg_parser = reqparse.RequestParser()
-system_search_arg_parser.add_argument('name',
-                                      type=str,
-                                      action='store',
-                                      required=True,
-                                      location=['values'])
-
-
-class SystemSearch(Resource):
-    def get(self):
-        """Search systems
-
-        """
-        args = system_search_arg_parser.parse_args()
-        systems = api.search_systems_by_name(args['name'])
-        res = {'systems': [s.as_dict() for s in systems], 'total_systems': 0}
-        return jsonify(res)
 
 route_arg_parser = reqparse.RequestParser()
 route_arg_parser.add_argument('waypoints',
@@ -67,6 +69,9 @@ route_arg_parser.add_argument('waypoints',
 
 
 class Routes(Resource):
+    """Calculate and return routes
+
+    """
     def post(self, node_type=None, route_type='shortest'):
         """Calculate routes
 
