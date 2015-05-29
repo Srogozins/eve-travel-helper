@@ -2,7 +2,7 @@
 # Downloads and extracts CCP's EVE Online Static Data export
 
 SDE_DIR=../SDE
-archive=Tiamat_1.0_110751_db.zip
+archive=Mosaic_1.2_112318_db.zip
 
 rm -r $SDE_DIR
 mkdir $SDE_DIR
